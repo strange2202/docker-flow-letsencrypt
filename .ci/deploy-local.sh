@@ -1,3 +1,5 @@
+#!/bin/sh
+
 docker service create --name letsencrypt-companion \
     --label com.df.notify=true \
     --label com.df.distribute=true \

@@ -21,25 +21,25 @@ RUN curl -o /root/certbot-auto https://dl.eff.org/certbot-auto && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add supervisord.conf
-ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf 
+ADD configs/supervisord.conf /etc/supervisor/conf.d/supervisord.conf 
 
 # Add certbot and make it executable
-ADD certbot.sh /root/certbot.sh
+ADD scripts/certbot.sh /root/certbot.sh
 RUN chmod u+x /root/certbot.sh
 
-ADD renewAndSendToProxy.sh /root/renewAndSendToProxy.sh
+ADD scripts/renewAndSendToProxy.sh /root/renewAndSendToProxy.sh
 RUN chmod u+x /root/renewAndSendToProxy.sh
 
 RUN ln -sf /proc/1/fd/1 /var/log/dockeroutput.log
 
 # Add symbolic link in cron.daily directory without ending (important!)
-ADD renewcron /etc/cron.d/renewcron
+ADD cron.d/renewcron /etc/cron.d/renewcron
 RUN chmod u+x /etc/cron.d/renewcron
 
-ADD servicestart /root/servicestart
-RUN chmod u+x /root/servicestart
+ADD .ci/entrypoint.sh /root/entrypoint.sh
+RUN chmod u+x /root/entrypoint.sh
 
 # Run the command on container startup
-CMD ["/root/servicestart"]
+CMD ["/root/entrypoint.sh"]
 
 EXPOSE 80

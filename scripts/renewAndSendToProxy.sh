@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #colors
 RED='\033[0;31m'
@@ -102,6 +102,8 @@ for d in /etc/letsencrypt/live/*/ ; do
       printf "proxy received $folder.combined.pem\n"
     fi
 
+    # Update AWS ELB
+    
 done
 
 printf "${RED}/etc/letsencrypt will be backed up as backup-date-time.tar.gz. It's important to know that some files are symbolic links (inside this backup) and they need to be untared correctly.${NC}\n"

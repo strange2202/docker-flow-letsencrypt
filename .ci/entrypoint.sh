@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ -z $CERTBOT_EMAIL ]; then
     printf "CERTBOT_EMAIL is empty!"
