@@ -16,40 +16,44 @@ RUN  apt-get update -y && \
      apt-get clean
 
 # http://stackoverflow.com/questions/33548530/envsubst-command-getting-stuck-in-a-container
-RUN apt-get -y install cron supervisor curl && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get -y install cron supervisor curl
 
 # install certbot-auto
 RUN curl -o /root/certbot-auto https://dl.eff.org/certbot-auto && \
     chmod a+x /root/certbot-auto && \
-    /root/certbot-auto --version --non-interactive && \
-    apt-get purge -y --auto-remove gcc libc6-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    /root/certbot-auto --version --non-interactive
 
-# install aws-cli
+# install aws-cli and jq
 RUN apt-get install -y unzip && \
     curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && \
     unzip awscli-bundle.zip && \
     rm awscli-bundle.zip && \
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
-    aws --version
+    rm -rf awscli-bundle && \
+    apt-get install -y jq
+
+# Clean Up apt-get
+RUN apt-get purge -y --auto-remove gcc libc6-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add supervisord.conf
 ADD configs/supervisord.conf /etc/supervisor/conf.d/supervisord.conf 
 
-# Add certbot and make it executable
-ADD scripts/certbot.sh /root/certbot.sh
-RUN chmod u+x /root/certbot.sh
-
-ADD scripts/renewAndSendToProxy.sh /root/renewAndSendToProxy.sh
-RUN chmod u+x /root/renewAndSendToProxy.sh
-
+# Create Soft Link for dockeroutput.log
 RUN ln -sf /proc/1/fd/1 /var/log/dockeroutput.log
 
-# Add symbolic link in cron.daily directory without ending (important!)
-ADD cron.d/renewcron /etc/cron.d/renewcron
-RUN chmod u+x /etc/cron.d/renewcron
+# Add Script Modules
+ADD script-modules /root/script-modules
 
+# Create Empty cron file, which will be setup during startup
+RUN touch /etc/cron.d/certRenewal && \
+    chmod u+x /etc/cron.d/certRenewal
+
+# Add certRenewal script
+ADD ./certRenewal.sh /root/certRenewal.sh
+RUN chmod u+x /root/certRenewal.sh
+
+# Add Entrypoint script
 ADD .ci/entrypoint.sh /root/entrypoint.sh
 RUN chmod u+x /root/entrypoint.sh
 

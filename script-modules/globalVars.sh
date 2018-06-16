@@ -1,0 +1,4 @@
+# Print Colors
+PRINT_COLOR_RED='\033[0;31m'
+PRINT_COLOR_GREEN='\033[0;32m'
+PRINT_COLOR_NC='\033[0m' # No Color
