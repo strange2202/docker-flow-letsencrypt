@@ -8,7 +8,10 @@ source "${CurrentScriptDir}/../script-modules/globalVars.sh"
 source "${CurrentScriptDir}/../script-modules/awsFunctions.sh"
 
 # Initialize AWS
-#TODO:
+AWS_ACCESS_KEY=$1;
+AWS_SECRET_KEY=$2;
+AWS_DEFAULT_REGION=$3;
+initAws false;
 
 # Load Certificates from AWS
 loadAwsCerts;
@@ -20,4 +23,6 @@ loadAwsCertsFile;
 saveAwsCertsFile;
 
 # Delete File
-rm ./awsCerts.json
+if [ -e ./awsCerts.json ]; then
+  rm ./awsCerts.json
+fi

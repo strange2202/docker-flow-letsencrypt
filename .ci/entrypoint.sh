@@ -1,10 +1,5 @@
 #!/bin/sh
 
-if [ -z $CERTBOT_EMAIL ]; then
-    printf "CERTBOT_EMAIL is empty!"
-    exit 1
-fi
-
 # Get CurrentScriptDirectory
 local CurrentScriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -15,12 +10,17 @@ source "${CurrentScriptDir}/script-modules/createDomainFolders.sh"
 source "${CurrentScriptDir}/script-modules/setupCronCertRenewal.sh"
 source "${CurrentScriptDir}/script-modules/renewCerts.sh"
 
+if [ -z $CERTBOT_EMAIL ]; then
+    printf "${PRINT_COLOR_RED}CERTBOT_EMAIL is empty!${PRINT_COLOR_NC}\n"
+    exit 1
+fi
+
 # Start up Message
 printf "${PRINT_COLOR_GREEN}Docker Flow: Let's Encrypt starting ...${PRINT_COLOR_NC}\n";
 printf "We will use $CERTBOT_EMAIL for certificate registration with certbot. This e-mail is used by Let's Encrypt when you lose the account and want to get it back.\n";
 
 # Initialize AWS
-#TODO:
+initAws false > /var/log/dockeroutput.log;
 
 # Load Certificates from AWS
 loadAwsCerts > /var/log/dockeroutput.log;
